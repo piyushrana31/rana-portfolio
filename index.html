@@ -120,6 +120,50 @@ const dropArea = document.querySelector('.text-area');
           dropArea.style.background = "#000000";
 });
 
+  draggables.forEach(item => {
+    item.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        item.style.position = 'absolute';
+        item.style.zIndex = '1000';
+
+        function moveAt(pageX, pageY) {
+            item.style.left = `${pageX - item.offsetWidth / 2}px`;
+            item.style.top = `${pageY - item.offsetHeight / 2}px`;
+        }
+
+        moveAt(touch.pageX, touch.pageY);
+
+        function onTouchMove(event) {
+            const touchMove = event.touches[0];
+            moveAt(touchMove.pageX, touchMove.pageY);
+        }
+
+        document.addEventListener('touchmove', onTouchMove);
+
+        item.addEventListener('touchend', (event) => {
+            document.removeEventListener('touchmove', onTouchMove);
+
+            // Check if dropped inside drop area
+            const dropRect = dropArea.getBoundingClientRect();
+            const imgRect = item.getBoundingClientRect();
+
+            if (
+                imgRect.left >= dropRect.left &&
+                imgRect.right <= dropRect.right &&
+                imgRect.top >= dropRect.top &&
+                imgRect.bottom <= dropRect.bottom
+            ) {
+                window.open(item.getAttribute('data-url'), '_blank');
+            }
+
+            // Reset position
+            item.style.position = 'static';
+        }, { once: true });
+
+        e.preventDefault();
+    });
+});
+
 </script>
 
 </body>
